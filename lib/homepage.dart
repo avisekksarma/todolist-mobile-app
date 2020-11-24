@@ -27,8 +27,10 @@ class HomeView extends StatelessWidget {
           body: SafeArea(
             child: TabBarView(
               children: [
-                HomeScreenUncompletedTodos(),
-                Text('this is completed')
+                FutureBuilderForAllTodos(
+                    'No any Todos', UncompletedTodos.allUncompletedTodos),
+                FutureBuilderForAllTodos(
+                    'No any Completed todos', CompletedTodos.allCompletedTodos)
               ],
             ),
           ),
@@ -49,52 +51,87 @@ class HomeView extends StatelessWidget {
   }
 }
 
-class HomeScreenUncompletedTodos extends StatefulWidget {
+// start of future builder for the uncompleted as well as completed todos.
+class FutureBuilderForAllTodos extends StatefulWidget {
+  final whatToShowWhenEmpty;
+
+  final listToWorkUpon;
+
+  FutureBuilderForAllTodos(this.whatToShowWhenEmpty, this.listToWorkUpon);
+
   @override
-  _HomeScreenUncompletedTodosState createState() =>
-      _HomeScreenUncompletedTodosState();
+  _FutureBuilderForAllTodosState createState() =>
+      _FutureBuilderForAllTodosState();
 }
 
-class _HomeScreenUncompletedTodosState
-    extends State<HomeScreenUncompletedTodos> {
+class _FutureBuilderForAllTodosState extends State<FutureBuilderForAllTodos> {
   Future<Object> allTodos = HandleApiPartForTodos.getAllTodos();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // for (var i in UncompletedTodos.allUncompletedTodos) {
-    //   print(UncompletedTodos.allUncompletedTodos);
-    //   print(i.todo);
-    // }
-
     return FutureBuilder(
         future: allTodos,
         builder: (context, snapshot) {
-          print(snapshot.data);
-          print(snapshot.connectionState);
+          print('future completed');
           if (snapshot.connectionState == ConnectionState.none ||
               snapshot.connectionState == ConnectionState.waiting) {
+            print('inside spinkit');
             return spinkit;
           } else if (snapshot.connectionState == ConnectionState.done) {
-            if (UncompletedTodos.allUncompletedTodos.isEmpty) {
-              return Center(child: Text('No Any Todos.'));
+            print('below is list to work upon');
+            print(this.widget.listToWorkUpon);
+            if (this.widget.listToWorkUpon.isEmpty) {
+              return Center(child: Text(this.widget.whatToShowWhenEmpty));
             } else {
               return ListView.separated(
-                itemCount: UncompletedTodos.allUncompletedTodos.length,
+                itemCount: this.widget.listToWorkUpon.length + 1,
                 itemBuilder: (context, index) {
-                  return Container(
-                      height: 50,
-                      width: double.infinity,
-                      child: Align(
-                        alignment: Alignment(-0.75, 0),
-                        child: Text((index + 1).toString() +
-                            '. ' +
-                            UncompletedTodos.allUncompletedTodos[index].todo),
-                      ));
+                  // for showing the form in home tab or just an empty container (i.e not showing form in completed tab.)
+                  if (index == this.widget.listToWorkUpon.length) {
+                    if (this.widget.listToWorkUpon ==
+                        UncompletedTodos.allUncompletedTodos) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width / 5,
+                        child: AddANewTodo(() {
+                          // form to be shown in "todos tab".
+                          setState(() {
+                            allTodos = HandleApiPartForTodos.getAllTodos();
+                          });
+                        }),
+                      );
+                    } else {
+                      return Container(); // an empty container so that means form not to be shown in "completed tab"
+                    }
+                  }
+                  return Dismissible(
+                    key: Key(this.widget.listToWorkUpon[index].id.toString()),
+                    direction: DismissDirection.startToEnd,
+                    background: Container(
+                        color: Colors.lightGreenAccent,
+                        child: Align(
+                          alignment: Alignment(-0.5, 0),
+                          child: Text('Mark as Completed',
+                              style:
+                                  TextStyle(fontSize: 17, color: Colors.black)),
+                        )),
+                    onDismissed: (direction) async {
+                      // after the following line the todo will be marked as complete so then only setstate should happen so i used await.
+                      await HandleApiPartForTodos.markATodoAsCompleted(
+                          this.widget.listToWorkUpon[index].id);
+                      setState(() {
+                        allTodos = HandleApiPartForTodos.getAllTodos();
+                      });
+                    },
+                    child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        child: Align(
+                          alignment: Alignment(-0.75, 0),
+                          child: Text((index + 1).toString() +
+                              '. ' +
+                              this.widget.listToWorkUpon[index].todo),
+                        )),
+                  );
                 },
                 separatorBuilder: (context, index) {
                   return Divider();
@@ -106,9 +143,50 @@ class _HomeScreenUncompletedTodosState
   }
 }
 
-class ATodo extends StatelessWidget {
+// class ATodo extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container();
+//   }
+// }
+
+class AddANewTodo extends StatefulWidget {
+  final rebuildTheTodosTab;
+
+  AddANewTodo(this.rebuildTheTodosTab);
+  @override
+  _AddANewTodoState createState() => _AddANewTodoState();
+}
+
+class _AddANewTodoState extends State<AddANewTodo> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController addTodoController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+              controller: addTodoController,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please type a todo before submitting.';
+                }
+                return null;
+              }),
+          ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState.validate()) {
+                  await HandleApiPartForTodos.addATodo(
+                      addTodoController.text, context);
+                  this.widget.rebuildTheTodosTab();
+                }
+              },
+              child: Text('Add'))
+        ],
+      ),
+    );
   }
 }
