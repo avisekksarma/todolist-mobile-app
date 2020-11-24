@@ -81,10 +81,35 @@ class _FutureBuilderForAllTodosState extends State<FutureBuilderForAllTodos> {
             print('below is list to work upon');
             print(this.widget.listToWorkUpon);
             if (this.widget.listToWorkUpon.isEmpty) {
-              return Center(child: Text(this.widget.whatToShowWhenEmpty));
+              if (this.widget.listToWorkUpon ==
+                  UncompletedTodos.allUncompletedTodos) {
+                return Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 1.2,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AddANewTodo(() {
+                          // form to be shown in "todos tab".
+                          setState(() {
+                            allTodos = HandleApiPartForTodos.getAllTodos();
+                          });
+                        }),
+                        SizedBox(
+                          height: 40,
+                        ),
+                        Text(this.widget.whatToShowWhenEmpty)
+                      ],
+                    ),
+                  ),
+                );
+              } else {
+                return Center(child: Text(this.widget.whatToShowWhenEmpty));
+              }
             } else {
               return ListView.separated(
-                itemCount: this.widget.listToWorkUpon.length + 1,
+                itemCount: this.widget.listToWorkUpon.length +
+                    1, // 1 is added so that form can be put along with all the list items , so 1 = extra form.
                 itemBuilder: (context, index) {
                   // for showing the form in home tab or just an empty container (i.e not showing form in completed tab.)
                   if (index == this.widget.listToWorkUpon.length) {

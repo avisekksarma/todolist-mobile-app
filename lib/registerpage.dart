@@ -72,6 +72,7 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
             Card(
               child: TextFormField(
+                  obscureText: true,
                   controller: passwordController,
                   decoration: InputDecoration(hintText: 'Password'),
                   textAlign: TextAlign.center,
