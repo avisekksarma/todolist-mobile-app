@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/loginpage.dart';
 import 'package:todolist/todos_collection/todo.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:todolist/shared_pref_data/shared_pref_data.dart';
 
 // global variables section
 final spinkit = SpinKitRing(
@@ -30,6 +32,17 @@ class HomeView extends StatelessWidget {
               ],
             ),
           ),
+          bottomNavigationBar: FlatButton(
+            onPressed: () async {
+              // logging out the user by deleting the session-cookie.
+              await sharedPrefDataManager.deleteData('session-cookie');
+              bool isLoggedIn = await checkIfUserIsLoggedIn(); // return false
+              print('homepage.dart-' + isLoggedIn.toString());
+              Navigator.pushReplacementNamed(context, '/');
+            },
+            child: Text('Logout'),
+            color: Colors.red,
+          ),
         ),
       ),
     );
@@ -44,15 +57,10 @@ class HomeScreenUncompletedTodos extends StatefulWidget {
 
 class _HomeScreenUncompletedTodosState
     extends State<HomeScreenUncompletedTodos> {
-  Future<Object> allTodos;
-
-  getAllTodosAndCompleted() {
-    allTodos = HandleApiPartForTodos.getAllTodos();
-  }
+  Future<Object> allTodos = HandleApiPartForTodos.getAllTodos();
 
   @override
   void initState() {
-    getAllTodosAndCompleted();
     super.initState();
   }
 

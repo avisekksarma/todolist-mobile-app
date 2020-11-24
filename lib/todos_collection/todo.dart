@@ -4,9 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:todolist/magic_number/magicnumbers.dart' as magicNumbers;
 import 'package:todolist/shared_pref_data/shared_pref_data.dart';
 
-// Global variables section
-SharedPrefData sharedPrefDataManager = SharedPrefData();
-
 class UncompletedTodos {
   int id;
   String todo;
@@ -28,6 +25,7 @@ class CompletedTodos {
 }
 
 abstract class HandleApiPartForTodos {
+  // use this method only if user is logged in that is like She is in homepage.
   static Future<Object> getAllTodos() async {
     UncompletedTodos.allUncompletedTodos = [];
     CompletedTodos.allCompletedTodos = [];

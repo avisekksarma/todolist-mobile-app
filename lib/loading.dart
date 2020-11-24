@@ -14,7 +14,6 @@ class _LoadingState extends State<Loading> {
     color: Colors.white,
     size: 40.0,
   );
-  final SharedPrefData sharedPrefDataManager = SharedPrefData();
 
   // getTodos() async {
   //   var result = await HandleApiPartForTodos.getAllTodos();
@@ -23,9 +22,10 @@ class _LoadingState extends State<Loading> {
   Future<void> isLoggedIn() async {
     bool isloggedin = await checkIfUserIsLoggedIn();
     if (isloggedin) {
-      // await getTodos();
+      // go to homepage if logged in
       Navigator.pushReplacementNamed(context, 'home');
     } else {
+      // go to login page if not logged in
       Navigator.pushReplacementNamed(context, 'login');
     }
   }

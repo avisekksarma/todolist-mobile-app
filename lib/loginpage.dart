@@ -5,9 +5,6 @@ import 'package:todolist/magic_number/magicnumbers.dart' as magicNumbers;
 import 'package:todolist/shared_pref_data/shared_pref_data.dart';
 // import 'package:requests/requests.dart';
 
-// Global variables section
-SharedPrefData sharedPrefDataManager = SharedPrefData();
-
 class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -91,11 +88,24 @@ class _LoginFormState extends State<LoginForm> {
                       borderRadius: BorderRadius.circular(10.0)),
                   color: Colors.orangeAccent,
                   child: Text('Login'),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       print('input is valid for login page.');
-                      loginViaApi(
-                          controllerUsername.text, controllerPassword.text);
+                      bool wasLoginAttemptSuccessful = await loginViaApi(
+                        controllerUsername.text,
+                        controllerPassword.text,
+                      );
+                      if (wasLoginAttemptSuccessful) {
+                        Navigator.pushReplacementNamed(context, 'home');
+                      } else {
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          backgroundColor: Colors.black,
+                          content: Text(
+                            'Invalid username and/or password.',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ));
+                      }
                     }
                   },
                 )),
@@ -114,19 +124,13 @@ class _LoginFormState extends State<LoginForm> {
                       Navigator.pushReplacementNamed(context, 'register');
                     },
                   ),
-                  FlatButton(
-                      onPressed: () {
-                        checkIfUserIsLoggedIn();
-                      },
-                      child: Text('Click'),
-                      color: Colors.lightGreenAccent)
                 ]))
           ])),
     );
   }
 }
 
-Future<void> loginViaApi(String username, String password) async {
+Future<bool> loginViaApi(String username, String password) async {
   http.Response response = await http.post(magicNumbers.ipAddress + 'api/login',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -134,20 +138,24 @@ Future<void> loginViaApi(String username, String password) async {
       body: jsonEncode({
         'username': username,
         'password': password,
-        'app_name': 'avisektodo'
+        'app_name': magicNumbers.appName
       }));
   if (response.statusCode == 200) {
+    // so the person should now be logged in.
     var x = json.decode(response.body);
     String cookieValue = response.headers['set-cookie'];
+    // storing the session cookie value got from the backend/api so this acts as logging the user in.
     sharedPrefDataManager.storeStringData('session-cookie', cookieValue);
     print(x);
     try {
-      print("this is ${cookieValue}");
+      print("this is $cookieValue");
     } catch (error) {
       print(error);
     }
+    return true; // that means login attempt is successful.
   } else {
     print(jsonDecode(response.body));
+    return false; // that means login attempt is unsuccessful due to invalid username and/or password.
   }
 }
 
