@@ -91,4 +91,20 @@ abstract class HandleApiPartForTodos {
       throw 'markATodoAsCompleted function could not do its job.';
     }
   }
+
+  static deleteATodo(int todoId) async {
+    http.Response res = await http
+        .delete(magicNumbers.ipAddress + 'api/todos/$todoId', headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Cookie':
+          await sharedPrefDataManager.getStringData('session-cookie') ?? ''
+    });
+
+    var body = jsonDecode(res.body);
+    print('line-3');
+    print(body);
+    if (res.statusCode != 200) {
+      throw 'deleteATodo function could not do its job.';
+    }
+  }
 }

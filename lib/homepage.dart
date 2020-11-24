@@ -105,7 +105,6 @@ class _FutureBuilderForAllTodosState extends State<FutureBuilderForAllTodos> {
                   }
                   return Dismissible(
                     key: Key(this.widget.listToWorkUpon[index].id.toString()),
-                    direction: DismissDirection.startToEnd,
                     background: Container(
                         color: Colors.lightGreenAccent,
                         child: Align(
@@ -114,13 +113,29 @@ class _FutureBuilderForAllTodosState extends State<FutureBuilderForAllTodos> {
                               style:
                                   TextStyle(fontSize: 17, color: Colors.black)),
                         )),
+                    secondaryBackground: Container(
+                        color: Colors.redAccent,
+                        child: Align(
+                          alignment: Alignment(0.5, 0),
+                          child: Text('Delete',
+                              style:
+                                  TextStyle(fontSize: 17, color: Colors.black)),
+                        )),
                     onDismissed: (direction) async {
-                      // after the following line the todo will be marked as complete so then only setstate should happen so i used await.
-                      await HandleApiPartForTodos.markATodoAsCompleted(
-                          this.widget.listToWorkUpon[index].id);
-                      setState(() {
-                        allTodos = HandleApiPartForTodos.getAllTodos();
-                      });
+                      if (direction == DismissDirection.startToEnd) {
+                        // after the following line the todo will be marked as complete so then only setstate should happen so i used await.
+                        await HandleApiPartForTodos.markATodoAsCompleted(
+                            this.widget.listToWorkUpon[index].id);
+                        setState(() {
+                          allTodos = HandleApiPartForTodos.getAllTodos();
+                        });
+                      } else {
+                        await HandleApiPartForTodos.deleteATodo(
+                            this.widget.listToWorkUpon[index].id);
+                        setState(() {
+                          allTodos = HandleApiPartForTodos.getAllTodos();
+                        });
+                      }
                     },
                     child: Container(
                         height: 50,
