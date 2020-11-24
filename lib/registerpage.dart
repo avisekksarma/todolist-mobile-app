@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class RegisterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -9,15 +8,19 @@ class RegisterView extends StatelessWidget {
           title: Text('The Todolist App'),
           centerTitle: true,
         ),
-        body: Padding(
-          padding: EdgeInsets.fromLTRB(50, 50, 50, 0),
-          child: Column(children: [
-            Container(
-              child: Text('Register Now', style: TextStyle(fontSize: 30)),
-              margin:EdgeInsets.fromLTRB(0, 0, 0, 20)
+        body: Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width / 1.2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                    child: Text('Register Now', style: TextStyle(fontSize: 30)),
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20)),
+                RegisterForm(),
+              ],
             ),
-            RegisterForm(),
-          ]),
+          ),
         ));
   }
 }
@@ -39,47 +42,41 @@ class _RegisterFormState extends State<RegisterForm> {
           child: Column(children: <Widget>[
             Card(
               child: TextFormField(
-                decoration: InputDecoration(
-                  hintText:'Username'
-                ),
-                textAlign: TextAlign.center,
-                validator: (text) {
-                if (text.isEmpty) {
-                  return 'Please enter your username.';
-                }
-                return null;
-              }),
+                  decoration: InputDecoration(hintText: 'Username'),
+                  textAlign: TextAlign.center,
+                  validator: (text) {
+                    if (text.isEmpty) {
+                      return 'Please enter your username.';
+                    }
+                    return null;
+                  }),
             ),
             Card(
               child: TextFormField(
-                decoration: InputDecoration(
-                  hintText:'Email'
-                ),
-                textAlign: TextAlign.center,
-                validator: (text) {
-                if (text.isEmpty) {
-                  return 'Please enter your email.';
-                }
-                return null;
-              }),
+                  decoration: InputDecoration(hintText: 'Email'),
+                  textAlign: TextAlign.center,
+                  validator: (text) {
+                    if (text.isEmpty) {
+                      return 'Please enter your email.';
+                    }
+                    return null;
+                  }),
             ),
             Card(
               child: TextFormField(
-                decoration: InputDecoration(
-                  hintText:'Password'
-                ),
-                textAlign: TextAlign.center,
-                validator: (text) {
-                if (text.isEmpty) {
-                  return 'Please enter your password';
-                }
-                return null;
-              }),
+                  decoration: InputDecoration(hintText: 'Password'),
+                  textAlign: TextAlign.center,
+                  validator: (text) {
+                    if (text.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  }),
             ),
             Padding(
                 padding: EdgeInsets.all(10),
                 child: RaisedButton(
-                  color:Colors.orangeAccent,
+                  color: Colors.orangeAccent,
                   child: Text('Register'),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
@@ -88,25 +85,21 @@ class _RegisterFormState extends State<RegisterForm> {
                   },
                 )),
             Container(
-              margin:EdgeInsets.fromLTRB(0,10,0,0),
-              child: Row(
-                children: [
+                margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                child: Row(children: [
                   Padding(
-                    child: Text("Already have an Account?"),
-                    padding:EdgeInsets.all(10)
-                  ),
+                      child: Text("Already have an Account?"),
+                      padding: EdgeInsets.all(10)),
                   FlatButton(
-                    color:Colors.orange[200],
-                    child:Text('Login'),
-                    onPressed: (){
+                    color: Colors.orange[200],
+                    child: Text('Login'),
+                    onPressed: () {
                       print('register here is clicked');
                       Navigator.pushReplacementNamed(context, 'login');
                     },
                   )
-                ])
-            )
+                ]))
           ])),
     );
   }
 }
-
